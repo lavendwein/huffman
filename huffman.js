@@ -5,10 +5,9 @@ let dictionary = new Array();
 let alph = new Array();
 let tree = new Array();
 let i = 0;
-let j = 0;
-let newCode = '';
-let decodeString = '';
 let code = '';
+let decodeString = '';
+let decode = '';
 
 function Node(letter, freq, used, left, right, code){
 	this.letter = letter;
@@ -19,9 +18,18 @@ function Node(letter, freq, used, left, right, code){
 	this.code = code;
 }	
 
+function Key(value, array){
+	for (let key in value){
+		if (array[key] == value){
+			return key;
+		}
+	}
+	return false;
+}
+
 function findTwoMin(){ //ищем 2 элемента с минимальными частотами
-	let min1 = 1000;
-	let min2 = 1000;
+	let min1 = Number.POSITIVE_INFINITY;
+	let min2 = Number.POSITIVE_INFINITY;
 	let minIndex1 = 0;
 	let minIndex2 = 0;
 	for (let i = 0; i < tree.length; i++){
@@ -42,12 +50,13 @@ function findTwoMin(){ //ищем 2 элемента с минимальными
 }
 
 
-fs.readFile(arg[3], (err, data) => {
+fs.readFile(arg[2], (err, data) => {
 	if (err){
 		console.error(err);
 		return;
 	}
 	inputData = data.toString();
+	console.log(inputData);
 
 	for (i = 0; i < inputData.length; i++){
 		alph[inputData.charAt(i)] = 0;
@@ -90,42 +99,28 @@ fs.readFile(arg[3], (err, data) => {
 		
 		for (i = 0; i < (tree.length - 1); i ++){ //создаем словарь, в котором хранятся коды каждой буквы
 			if (tree[i].left == null && tree[i].right == null){
-				dictionary.push(tree[i]);
+				dictionary[tree[i].letter] = [tree[i].code];
 			}	
 		}	
 		
 	}else{
 		tree[0].code = '0';
-		dictionary.push(tree[0]);
+		dictionary[tree[0].letter] = [tree[0].code]
 	}	
 	
-	i = 0;
-	if (arg[2] == 'code'){
-		while (i < inputData.length){
-			for (j in dictionary){
-				if (inputData.charAt(i) == dictionary[j].letter){
-					code += dictionary[j].code;
-				}
-			}
-			i++;		
-		}	
-		console.log(code);
-		fs.writeFileSync(arg[4], code);
+	for (i = 0; i < inputData.length; i++){
+		code += dictionary[inputData.charAt(i)];
+	}
+	console.log(code);
 	
-	}else if (arg[2] == 'decode'){
-		let decode = fs.readFileSync(arg[5], 'utf8');
-		decode.toString();
-		while (i < decode.length){
-			newCode += decode.charAt(i);
-			for (j in dictionary){
-				if (newCode == dictionary[j].code){
-					decodeString += dictionary[j].letter;
-					newCode = '';
-				}	
+	for(i = 0; i < code.length; i++){
+		decodeString += code[i];
+		for (j in dictionary){
+			if (dictionary[j] == decodeString){
+				decode += j;
+				decodeString = '';
 			}
-			i++;
 		}
-		console.log(decodeString);
-		fs.writeFileSync(arg[4], decodeString);
-	}		
+	}
+	console.log(decode);
 }); 
